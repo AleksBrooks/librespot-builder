@@ -20,6 +20,11 @@ jobs:
           tool: cross
 
       - name: Build librespot with ALSA and Rustls
+        env:
+          # Принудительно отключаем pkg-config для alsa-sys и указываем, что линковать нужно системную alsa
+          ALSA_NO_PKG_CONFIG: "1"
+          CFLAGS_arm_unknown_linux_gnueabihf: "-I/usr/include/arm-linux-gnueabihf"
+          LDFLAGS_arm_unknown_linux_gnueabihf: "-L/usr/lib/arm-linux-gnueabihf"
         run: |
           cd librespot
           cross build --release --target arm-unknown-linux-gnueabihf --no-default-features --features "alsa-backend,librespot-oauth/rustls-tls-webpki-roots"
