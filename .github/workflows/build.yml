@@ -1,4 +1,4 @@
-name: Build Librespot for Yandex Station
+name: Build Librespot with Cross
 
 on:
   workflow_dispatch:
@@ -10,27 +10,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Rust toolchain & target for ARM
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: arm-unknown-linux-gnueabihf
-
-      - name: Install dependencies (ALSA)
-        run: |
-          sudo dpkg --add-architecture armhf
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-linux-gnueabihf libasound2-dev:armhf
-
       - name: Clone librespot source
         run: |
           git clone https://github.com/librespot-org/librespot.git
 
-      - name: Build librespot with ALSA
-        env:
-          CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-gcc
+      - name: Install cross tool
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+
+      - name: Build librespot with ALSA for ARM
         run: |
           cd librespot
-          cargo build --release --target arm-unknown-linux-gnueabihf --no-default-features --features alsa-backend
+          cross build --release --target arm-unknown-linux-gnueabihf --no-default-features --features alsa-backend
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
